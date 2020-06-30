@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zyl.mapper.DeptMapper">
+    <select id="findDept" resultType="com.zyl.pojo.Dept">
+        select * from t_dept
+    </select>
+
+    <select id="findDeptById" resultType="com.zyl.pojo.Dept">
+       select * from t_dept where deptid=#{deptid}
+    </select>
+
+    <select id="findRoleList" resultType="com.zyl.pojo.Role">
+        SELECT * FROM t_role
+    </select>
+
+    <select id="findRidByPid" resultType="long">
+        select rid from t_role where deptid=#{deptid}
+    </select>
+
+    <update id="deleteRoleByDeptid">
+         update t_role set deptid = null where deptid = #{deptid}
+    </update>
+
+    <update id="saveDeptRole">
+        UPDATE t_role SET deptid = #{deptid} WHERE rid = #{rid}
+    </update>
+
+</mapper>

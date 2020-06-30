@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zyl.mapper.RoleMapper">
+    <resultMap id="BaseResultMap" type="com.zyl.pojo.Role">
+        <id column="rid" property="rid"/>
+        <result column="rname" property="rname"/>
+        <association property="dept" javaType="com.zyl.pojo.Dept" >
+            <id column="deptid" property="deptid"/>
+            <result column="dname" property="dname"/>
+        </association>
+    </resultMap>
+    <select id="findRole" resultMap="BaseResultMap">
+       SELECT * from t_role r LEFT JOIN t_dept d ON r.deptid = d.deptid
+    </select>
+    <select id="findAllRole" resultType="com.zyl.pojo.Role">
+        SELECT * from t_role where deptid = #{deptid}
+    </select>
+    <select id="getPowerList" resultType="com.zyl.pojo.Power">
+        SELECT * FROM t_power
+    </select>
+    <select id="getRoleByRid" resultType="long">
+        SELECT id FROM t_r_p WHERE rid = #{rid}
+    </select>
+    <delete id="deleteRolePowerByRid">
+        delete from t_r_p where rid = #{rid}
+    </delete>
+    <insert id="insertRolePower">
+        insert into t_r_p(rid,id) values (#{rid},#{ids})
+    </insert>
+</mapper>

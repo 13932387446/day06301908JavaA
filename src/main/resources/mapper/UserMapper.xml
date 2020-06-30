@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zyl.mapper.UserMapper">
+    <resultMap id="BaseResultMap" type="com.zyl.pojo.User">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="age" column="age"/>
+        <result property="birthday" column="birthday"/>
+        <result property="isdelete" column="isdelete"/>
+        <result property="gid" column="gid"/>
+        <result property="file" column="file"/>
+
+        <association property="dept" javaType="com.zyl.pojo.Dept">
+            <result property="deptid" column="deptid"/>
+            <result property="dname" column="dname"/>
+            <result property="ddesc" column="ddesc"/>
+        </association>
+
+        <association property="role" javaType="com.zyl.pojo.Role">
+            <result property="rid" column="rid"/>
+            <result property="rname" column="rname"/>
+        </association>
+    </resultMap>
+
+
+    <select id="findUser" resultMap="BaseResultMap">
+        SELECT
+          *
+         FROM
+             t_user u
+          LEFT JOIN t_dept d ON u.deptid = d.deptid
+          LEFT JOIN t_role r ON u.rid = r.rid
+          where u.isdelete = 0
+            <if test="mohu != null and mohu != ''">
+               and u.username like '%${mohu}%'
+            </if>
+            <if test="sbirthday != null and sbirthday != ''">
+                and u.birthday &gt;= #{sbirthday}
+            </if>
+            <if test="ebirthday != null and ebirthday != ''">
+                and u.birthday &lt;= #{ebirthday}
+            </if>
+    </select>
+
+    <select id="findUserById" resultMap="BaseResultMap">
+        SELECT
+          *
+         FROM
+             t_user u
+          LEFT JOIN t_dept d ON u.deptid = d.deptid
+          LEFT JOIN t_role r ON u.rid = r.rid
+          where u.id = #{id}
+    </select>
+
+    <select id="findPower" resultType="com.zyl.pojo.Power">
+        select * from t_power
+    </select>
+
+    <select id="findPowerById" resultType="com.zyl.pojo.Power">
+       SELECT
+            d.*
+        FROM
+            t_user a
+        LEFT JOIN t_role b ON a.rid = b.rid
+        LEFT JOIN t_r_p c ON b.rid = c.rid
+        LEFT JOIN t_power d ON c.id = d.id
+        WHERE
+            a.id = #{id}
+    </select>
+
+    <select id="querySmoke" resultType="com.zyl.pojo.RsBean">
+        SELECT * FROM t_smoke WHERE cardno = #{cardno}
+    </select>
+
+    <select id="queryWine" resultType="com.zyl.pojo.RsBean">
+        SELECT * FROM t_wine WHERE cardno = #{cardno}
+    </select>
+
+    <select id="findDept" resultType="com.zyl.pojo.Dept">
+        select * from t_dept
+    </select>
+
+    <select id="findRoleByDept" resultType="com.zyl.pojo.Role">
+       SELECT * FROM t_role WHERE deptid = #{deptid}
+    </select>
+
+    <select id="getLogin" resultMap="BaseResultMap">
+       SELECT * FROM t_user WHERE username = #{username} AND `password` = #{password}
+    </select>
+
+    <select id="toUpdateUser" resultMap="BaseResultMap">
+       SELECT
+          *
+         FROM
+             t_user u
+          LEFT JOIN t_dept d ON u.deptid = d.deptid
+          LEFT JOIN t_role r ON u.rid = r.rid
+          where u.id = #{id}
+    </select>
+
+    <update id="saveUserDeptRole">
+        UPDATE t_user set deptid = #{deptid}, rid = #{rid} WHERE id = #{id}
+    </update>
+
+    <update id="deleteUser">
+        update t_user set isdelete = 1 WHERE id = #{id}
+    </update>
+
+    <update id="updateUser">
+        UPDATE t_user
+        SET username = #{username},
+         `password` = #{password},
+         deptid =#{deptid},
+         rid =#{rid},
+         age =#{age},
+         birthday = #{birthday}
+        WHERE
+            id = #{id}
+    </update>
+
+    <insert id="addUser">
+        INSERT INTO t_user (
+            username,
+            `password`,
+            deptid,
+            rid,
+            age,
+            birthday,
+            isdelete
+        )
+        VALUES
+            (
+               #{username},
+               #{password},
+               #{deptid},
+               #{rid},
+               #{age},
+               #{birthday},
+                0
+            )
+    </insert>
+
+    <insert id="saveSmoke" parameterType="com.zyl.pojo.Smoke">
+        insert into t_smoke(cardno,`name`,price,address,madedate)
+        values(#{cardno},#{name},#{price},#{address},#{madeDate})
+    </insert>
+
+    <insert id="saveWine" parameterType="com.zyl.pojo.Wine">
+        insert into t_wine(cardno,name,price,address,madedate,vol)
+        values(#{cardno},#{name},#{price},#{address},#{madeDate},#{vol})
+    </insert>
+    <insert id="insertPorcess" parameterType="com.zyl.pojo.Porcess" useGeneratedKeys="true" keyProperty="id">
+         insert into t_process(sid,qjtime,stime,etime,qjcause,qjstatus,qjdate)
+         values(#{sid},#{qjtime},#{stime},#{etime},#{qjcause},#{qjstatus},#{qjdate})
+    </insert>
+    <select id="findGradeByGid" resultType="com.zyl.pojo.Grade">
+        select * from t_grade where gid = #{gid}
+    </select>
+    <insert id="insertProcessPmx" parameterType="com.zyl.pojo.Pmx">
+        insert into t_pmx(pid,userid,status,pstatus,pshunxu,shdate)
+        values(#{pid},#{userid},#{status},#{pstatus},#{pshunxu},#{shdate})
+    </insert>
+    <select id="getStuQjListBySid" resultType="com.zyl.pojo.QjVo">
+        select * from t_process where sid = #{sid}
+    </select>
+    <select id="findUseridByPid" resultType="Integer">
+        select userid from t_pmx where pid = #{pid} and pstatus = 1
+    </select>
+    <select id="findUseridByPidMaxShunxu" resultType="integer">
+        select userid from t_pmx where pshunxu = (select MAX(pshunxu)
+        from t_pmx where pid = #{pid}) AND pid = #{pid}
+    </select>
+    <select id="findPidByNopass" resultType="integer">
+        select userid from t_pmx where pid = #{pid} and status = 2
+    </select>
+    <select id="findUnameRnameByid" resultType="com.zyl.pojo.QjVo">
+        select a.username uname,b.rname from t_user a
+        LEFT JOIN t_role b on a.rid = b.rid where a.id = #{id}
+    </select>
+    <select id="findQjStuListByUserid" resultType="integer">
+        select pid from t_pmx a where a.pstatus = 1 and a.userid = #{id}
+    </select>
+    <select id="findProcessById" resultType="com.zyl.pojo.QjVo">
+        select * from t_process where id = #{id}
+    </select>
+    <select id="findStuInfoBySid" resultType="com.zyl.pojo.QjVo">
+        select a.username uname,b.gname from t_user a LEFT JOIN
+        t_grade b on a.gid = b.gid where a.id = #{sid}
+    </select>
+    <update id="updateProcessStatus">
+         update t_process set qjstatus=#{shstatus} where id=#{pid}
+    </update>
+    <update id="updatePmxStatus">
+        update t_pmx set status=#{shstatus},pstatus=2 where pid=#{pid} and userid=#{id}
+    </update>
+    <select id="findQjmxInfo" resultType="Integer">
+        select pshunxu from t_pmx where pid = #{pid} and userid = #{id}
+    </select>
+    <select id="findMaxShunxu" resultType="Integer">
+        select max(pshunxu) from t_pmx where pid = #{pid}
+    </select>
+    <update id="updatePmxShunxu">
+        update t_pmx set pstatus = 1 where pid = #{pid} and  pshunxu = #{pshunxu}
+    </update>
+</mapper>
