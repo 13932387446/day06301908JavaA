@@ -56,6 +56,9 @@ public class UserController {
         /**
          * 我们需要写一个请假的vo类
          */
+        /**
+         * 这是我今天测试git写的
+         */
         List<QjVo> list = userService.getStuQjListBySid(user.getId());
         model.addAttribute("list",list);
         return "stuqj_list";
